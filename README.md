@@ -1,15 +1,19 @@
 # EventSource
 
-Example of an event sourcing application.
+**TODO: Add description**
 
-## Architecture
+## Installation
 
-The application is separated into three main components:
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `event_source` to your list of dependencies in `mix.exs`:
 
-1. The store
-2. The command process
-3. The query process
+```elixir
+def deps do
+  [{:event_source, "~> 0.1.0"}]
+end
+```
 
-## The store
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at [https://hexdocs.pm/event_source](https://hexdocs.pm/event_source).
 
-The store is utilises ETS to write facts (commands) to disc
