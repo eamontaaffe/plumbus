@@ -29,6 +29,9 @@ defmodule EventSource.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:mix_test_watch, "~> 0.3", only: :dev},
+      {:meck, "~> 0.8", only: :test}
+    ]
   end
 end
