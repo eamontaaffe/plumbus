@@ -8,7 +8,7 @@ defmodule EventSource.Store do
 
   @vsn 0
   defmodule Fact do
-    defstruct id: -1, type: "", payload: %{}
+    defstruct id: -1, payload: %{}
   end
 
   #####
@@ -38,7 +38,7 @@ defmodule EventSource.Store do
   end
 
   def handle_cast({:dispatch, {type, payload}}, state) do
-    event = %Fact{ id: state.id, type: type, payload: payload}
+    event = %Fact{ id: state.id, payload: payload}
     {:noreply, %{state | stack: state.stack ++ [event], id: state.id + 1}}
   end
 

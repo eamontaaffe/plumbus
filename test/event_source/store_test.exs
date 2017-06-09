@@ -16,9 +16,15 @@ defmodule EventSource.StoreTest do
     end
 
     test "non empty stack" do
-      state = %State{stack: [{:foo, "foo"}, {:bar, "bar"}]}
+      state = %State{stack: [
+                        %Fact{id: 0, payload: "foo"},
+                        %Fact{id: 0, payload: "bar"}
+                      ]}
       {:reply, msg, new_state} = Store.handle_call(:stack, nil, state)
-      assert msg == [{:foo, "foo"}, {:bar, "bar"}]
+      assert msg == [
+        %Fact{id: 0, payload: "foo"},
+        %Fact{id: 0, payload: "bar"}
+      ]
       assert new_state == state, "the state should not change"
     end
   end
@@ -30,16 +36,16 @@ defmodule EventSource.StoreTest do
         {:dispatch, {:foo, "foo"}},
         state
       )
-      assert new_stack == [%Fact{id: 0, type: :foo, payload: "foo"}]
+      assert new_stack == [%Fact{id: 0, payload: "foo"}]
     end
 
     test "fact to non empty stack" do
-      state = %State{stack: [%Fact{id: 0, type: :foo, payload: "foo"}], id: 1}
+      state = %State{stack: [%Fact{id: 0, payload: "foo"}], id: 1}
       {:noreply, %State{stack: new_stack}} = Store.handle_cast(
         {:dispatch, {:bar, "bar"}}, state)
       assert new_stack == [
-        %Fact{id: 0, type: :foo, payload: "foo"},
-        %Fact{id: 1, type: :bar, payload: "bar"}
+        %Fact{id: 0, payload: "foo"},
+        %Fact{id: 1, payload: "bar"}
       ]
     end
   end
