@@ -7,7 +7,12 @@ defmodule EventSource.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     name: "EventSource",
+     docs: [main: "EventSource",
+            extras: ["README.md"]
+           ]
+    ]
   end
 
   # Configuration for the OTP application
@@ -30,8 +35,10 @@ defmodule EventSource.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:meck, "~> 0.8", only: :test},
       {:mix_test_watch, "~> 0.3", only: :dev},
-      {:meck, "~> 0.8", only: :test}
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
 end
