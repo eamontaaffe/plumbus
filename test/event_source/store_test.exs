@@ -2,13 +2,13 @@ defmodule EventSource.StoreTest do
   use ExUnit.Case, async: true
   doctest EventSource.Store
 
-  alias EventSource.Store
-  alias Store.{State,Fact,Index}
+  alias EventSource.{Store, Fact}
+  alias Store.{State}
 
   #####
   # GenServer Implementation
 
-  describe "stack/0" do
+  describe "stack:" do
     test "empty stack" do
       state = %State{stack: []}
       {:reply, msg, _new_state} = Store.handle_call(:stack, nil, state)
@@ -29,7 +29,7 @@ defmodule EventSource.StoreTest do
     end
   end
 
-  describe "dispatch" do
+  describe "dispatch:" do
     test "fact to empty stack" do
       state = %State{stack: []}
       {:noreply, %State{stack: new_stack}} = Store.handle_cast(
@@ -50,54 +50,37 @@ defmodule EventSource.StoreTest do
     end
   end
 
-  describe "query" do
-    test "query with function" do
-      state = %State{stack: [{:foo, "foo"}, {:bar, "bar"}]}
-      fun = fn(fact) -> elem(fact, 0) == :foo end
-      {:reply, msg, new_state} = Store.handle_call(
-        {:query, fun},
-        nil,
-        state
-      )
-      assert msg == [{:foo, "foo"}]
-      assert new_state == state
+  describe "integration:" do
+    setup do
+      {:ok, pid} = GenServer.start_link Store, nil
+      [store: pid]
     end
-  end
 
-  describe "index" do
-    test "get" do
-      indexs = %{
-        idx: %{
-          1 => [%Fact{id: 0, payload: 1}, %Fact{id: 3, payload: 1}],
-          2 => [%Fact{id: 1, payload: 2}]
-        },
+    test "add a subscriber", %{store: store} do
+      GenServer.cast store, {
+        :dispatch,
+        %{type: :subscribe,
+          subscriber: self()
+        }
       }
-      state = %State{indexs: indexs}
-      {:reply, idx1, _state} = Store.handle_call({:index, :idx, 1}, nil, state)
-      assert idx1 == [%Fact{id: 0, payload: 1}, %Fact{id: 3, payload: 1}]
-    end
 
-    test "register" do
-      filter = fn (fact) -> fact.payload end
+      stack = GenServer.call store, :stack
+      assert length(stack) == 1, "There should be a new item in the stack"
 
-      {:noreply, new_state} = Store.handle_cast(
-        {:register_index, :idx, filter}, %State{})
+      subscribers = GenServer.call store, :subscribers
+      [last_subscriber | _] = Enum.reverse(subscribers)
 
-      assert new_state == %State{indexs: %{idx: %Index{filter: filter}}}
-    end
+      assert last_subscriber == self(), "The new subscriber should be the test"
 
-    test "initialize" do
-      stack = [%Fact{id: 0, payload: 1}, %Fact{id: 1, payload: 2},
-               %Fact{id: 2, payload: 1}]
-      filter = fn (fact) -> fact.payload end
-      state = %State{stack: stack, indexs: %{idx: %Index{filter: filter}}}
+      # Dispatch a new event to the store, this will be registered as a fact
+      GenServer.cast store, {:dispatch, :payload}
 
-      {:noreply, new_state} = Store.handle_cast(
-        {:initialize_index, :idx}, state)
+      stack = GenServer.call store, :stack
+      assert length(stack) == 2, "There should be two events in the stack"
 
-      assert Map.get(new_state.indexs, :idx).stacks == %{
-        1 => [%Fact{id: 0, payload: 1}, %Fact{id: 2, payload: 1}],
-        2 => [%Fact{id: 1, payload: 2}]
+      assert_received {
+        :"$gen_cast",
+        {:receive, %Fact{id: 1, payload: :payload}}
       }
     end
   end
