@@ -4,7 +4,7 @@ defmodule EventSource.Store do
   """
   use GenServer
 
-  alias EventSource.Fact
+  alias EventSource.Store.Fact
   # alias EventSource.Subscriber
 
   @vsn 0
@@ -25,7 +25,7 @@ defmodule EventSource.Store do
   #####
   # GenServer implementation
   def init(_args) do
-    {:ok, %State{subscribers: [self]}}
+    {:ok, %State{subscribers: [self()]}}
   end
 
   def handle_cast({:dispatch, payload}, state) do

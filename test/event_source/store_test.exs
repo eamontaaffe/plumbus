@@ -2,8 +2,8 @@ defmodule EventSource.StoreTest do
   use ExUnit.Case, async: true
   doctest EventSource.Store
 
-  alias EventSource.{Store, Fact}
-  alias Store.{State}
+  alias EventSource.{Store}
+  alias Store.{State, Fact}
 
   #####
   # GenServer Implementation

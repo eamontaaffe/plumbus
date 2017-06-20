@@ -1,4 +1,4 @@
-defmodule EventSource.Fact do
+defmodule EventSource.Store.Fact do
   @moduledoc """
   Fact's are the unit of currency in a stack.
 

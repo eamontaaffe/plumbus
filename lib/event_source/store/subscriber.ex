@@ -1,8 +1,8 @@
-defmodule EventSource.Subscriber do
+defmodule EventSource.Store.Subscriber do
   @moduledoc """
   A subscriber is a behaviour used to listen in on a store.
   """
-  alias EventSource.Fact
+  alias EventSource.Store.Fact
 
   @doc """
   The receive function is called when a new fact is submitted.
